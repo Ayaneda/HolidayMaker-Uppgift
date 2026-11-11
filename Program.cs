@@ -6,10 +6,8 @@
 // känslig information som inte ska vara här. Egentligen.
 string connectionString = "Server=localhost;Database=holiday_maker;User ID=root;Password=kurslosenord;UseAffectedRows=false;";
 
-await using var connectionBooking = new MySqlConnection(connectionString);
-await using var connectionCustomer = new MySqlConnection(connectionString);
-await connectionBooking.OpenAsync();
-await connectionCustomer.OpenAsync();
+await using var connection = new MySqlConnection(connectionString);
+await connection.OpenAsync();
 
-var repositoryBooking = new BookingRepository(connectionBooking);
-var repositoryCustomer = new CustomerRepository(connectionCustomer);
+
+var repository = new HolidayMakerRepository(connection);
