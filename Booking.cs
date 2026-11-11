@@ -1,1 +1,1 @@
-public sealed record Booking(string city, int numPersons, DateTime checkIn, DateTime checkOut, bool hasPool, bool hasRestaurant, int maxDistanceToBeach, int maxDistanceToCenter );
+public sealed record Booking(string city, int numPersons, DateTime checkIn, DateTime checkOut, bool hasPool, bool hasRestaurant, int maxDistanceToBeach, int maxDistanceToCenter);
