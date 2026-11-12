@@ -1,6 +1,6 @@
 using MySqlConnector;
 
-public class HolidayMakerRepository(MySqlConection connection)
+public class HolidayMakerRepository(MySqlConnection connection)
 {
     
 }

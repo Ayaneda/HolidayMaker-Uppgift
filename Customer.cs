@@ -1,1 +1,1 @@
-public sealed record Customer(string Name, string LastName, string telephone, string email);
+public sealed record Customer(string Name, string LastName, string Telephone, string Email);
