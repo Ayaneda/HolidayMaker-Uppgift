@@ -28,7 +28,35 @@ public class HolidayMakerRepository(MySqlConnection connection)
     }
 
     //Create a customer
+    public async Task<int> CreateCustomerAsync(string name, string last_name, string telephone, string email )
+    {
+        try
+        {
+            await using var command = new MySqlCommand(
+                "INSERT INTO customers (name, last_name, email, telephone) VALUES (@name, @last_name, @email, @telephone);", connection);
+            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@last_name", last_name);
+            command.Parameters.AddWithValue("@telephone", telephone);
+            command.Parameters.AddWithValue("@email", email);
+            await command.PrepareAsync();
+            await command.ExecuteNonQueryAsync();
+            return checked((int)command.LastInsertedId);
+        }
+        catch (MySqlException ex)
+        {
+            if (ex.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+            {
+                Console.WriteLine("Kunde inte skapa kund: Telefonnummer eller e-post finns redan.");
+            }
+            else
+            {
+                Console.WriteLine($"Kunde inte skapa kund: {ex.Message}");
+            }
+            return 0;
+        }
+    }
     //Look for free rooms with customers filters
+    
     //Make a booking
     //Get cofirmation of booking 
     //Remove reservation
