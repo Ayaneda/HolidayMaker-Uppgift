@@ -212,6 +212,46 @@ public class HolidayMakerRepository(MySqlConnection connection)
         }
     }
     //Get cofirmation of booking last inserted
+    public async Task<Booking?> GetProductAsync(int id)
+    {
+        await using var command = new MySqlCommand(
+            @"SELECT bookings.id,
+            h.name AS hotel_name,
+            h.city,
+            bookings.room_id,
+            r.name AS room_name,
+            bookings.start_date,
+            bookings.end_date,
+            DATEDIFF(bookings.end_date, bookings.start_date) AS nights,
+            bookings.num_persons,
+            (r.price * DATEDIFF(bookings.end_date, bookings.start_date)) AS Total_price
+            FROM bookings
+                JOIN rooms r ON bookings.room_id = r.id
+                JOIN hotels h ON r.hotel_id = h.id
+                WHERE bookings.id = @id;"
+            , connection);
+        command.Parameters.AddWithValue("@id", id);
+
+        await command.PrepareAsync();
+        await using var reader = await command.ExecuteReaderAsync();
+
+        if (await reader.ReadAsync())
+        {
+            return new Booking(
+                reader.GetInt32("id"),
+                reader.GetString("hotel_name"),
+                reader.GetString("city"),
+                reader.GetInt32("room_id"),
+                reader.GetString("room_name"),
+                reader.GetDateTime("start_date"),
+                reader.GetDateTime("end_date"),
+                reader.GetInt32("nights"),
+                reader.GetInt32("num_persons"),
+                reader.GetDecimal("Total_price"));
+        }
+        return null;
+    }
+
     //Show customers all reservations by customers id
     //Remove reservation
     

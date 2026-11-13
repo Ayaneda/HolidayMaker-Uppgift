@@ -1,27 +1,30 @@
-public sealed record Booking
+public sealed record Booking(
+    int BookingId, 
+    string HotelName,
+    string City,
+    int RoomId,
+    string RoomName,
+    DateTime CheckIn,
+    DateTime CheckOut,
+    int NumNights,
+    int NumPersons,
+    decimal TotalPrice)
 {
-    public int RoomId { get; init; }
-    public int CustomerId { get; init; }
-    public DateTime CheckInDate { get; init; }
-    public DateTime CheckOutDate { get; init; }
-    public int NumPersons { get; init; }
-    public bool HasPool {get; init; }
-    public bool HasRestaurant {get; init; }
-    public int MaxDistanceToBeach {get; init; }
-    public int MaxDistanceToCity {get; init; }
-
-
-    public Booking(int roomId, int customerId, DateTime checkInDate, DateTime checkOutDate, 
-        int numPersons, bool hasPool, bool hasRestaurant, int maxDistanceToBeach, int maxDistanceToCity )
+    public override string ToString()
     {
-        RoomId = roomId;
-        CustomerId = customerId;
-        CheckInDate = checkInDate.Date.AddHours(14);     //I automaticly set times where check in and check out are possible
-        CheckOutDate = checkOutDate.Date.AddHours(11);
-        NumPersons = numPersons;
-        HasPool = hasPool;
-        HasRestaurant = hasRestaurant;
-        MaxDistanceToBeach = maxDistanceToBeach;
-        MaxDistanceToCity = maxDistanceToCity;
+
+        return $"""
+            ============================================================
+                          BOKNINGSBEKRÄFTELSE #{BookingId}
+            ============================================================
+              Hotell:      {HotelName} ({City})
+              Rum:         #{RoomId} - {RoomName}
+              Gäster:      {NumPersons} pers
+              Incheckning: {CheckIn:yyyy-MM-dd HH:mm}
+              Utcheckning: {CheckOut:yyyy-MM-dd HH:mm} ({NumNights} nätter)
+            ------------------------------------------------------------
+              TOTALPRIS:   {TotalPrice:0.##} kr
+            ============================================================
+            """;
     }
 }
