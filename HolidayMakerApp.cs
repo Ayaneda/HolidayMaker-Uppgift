@@ -132,7 +132,7 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
         ConsoleUi.PrintHeader($"Lediga rum ({freeRooms.Count} st)");
         ConsoleUi.PrintList(freeRooms);
 
-        //4. Choose a room and create a reservation with saved variables
+        // 4. Choose a room and create a reservation with saved variables
         int roomId;
         while (true)
         {
@@ -146,9 +146,18 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
 
         int newBookingId = await repository.CreateBookingAsync(
             roomId, customerId, checkInDate, checkOutDate, numPersons);
+        
+        // 5. Show reservation's confirmation
+        if (newBookingId > 0)
+        {
+            ConsoleUi.PrintMessage($"\nBokning genomförd!");
+            Booking? confirmation = await repository.GetLastReservationAsync(newBookingId);
+            if (confirmation is not null)
+            {
+                ConsoleUi.PrintMessage(confirmation.ToString());
+            }
+        }
     }
-
-    
 
     //Update a booking
     private async Task UpdateBookingAsync()
