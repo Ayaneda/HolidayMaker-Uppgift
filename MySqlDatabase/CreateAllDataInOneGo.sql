@@ -1,5 +1,6 @@
 -- Jag skapade databas själv
-CREATE DATABASE holiday_maker;
+CREATE DATABASE IF NOT EXISTS holiday_maker;
+USE holiday_maker;
 
 -- Jag create a user
 CREATE USER 'operator'@'%'
