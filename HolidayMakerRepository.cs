@@ -295,6 +295,27 @@ public class HolidayMakerRepository(MySqlConnection connection)
         }
         return customersBookings;
     }
+    //Update num persons
+    public async Task<int> GetReservationUpdateAsync(int id, int newNumPersons)
+    {
+        await using var command = new MySqlCommand(
+            @"UPDATE bookings
+            JOIN rooms ON bookings.room_id = rooms.id
+            SET bookings.num_persons = @new_num_persons
+            WHERE bookings.id = @booking_id
+            AND rooms.persons_capacity >= @new_num_persons;", connection);
+
+        command.Parameters.AddWithValue("@booking_id", id);
+        command.Parameters.AddWithValue("@new_num_persons", newNumPersons);
+
+        await command.PrepareAsync();
+        int rowsAffected = await command.ExecuteNonQueryAsync();
+        if (rowsAffected == 0)
+        {
+            Console.WriteLine("Kunde inte uppdatera bokning: Bokningen saknas eller rummet rymmer inte antalet personer.");
+        }
+        return rowsAffected;
+    }
     //Remove reservation
     
 

@@ -80,7 +80,19 @@ foreach (Booking booking in customersBooking)
 {
     Console.WriteLine(booking);
 }
+
+
+//Update number of persons
+int bookingIdToUpdate = 7;
+int updatedRows = await repository.GetReservationUpdateAsync(id: bookingIdToUpdate, newNumPersons: 2);
+if (updatedRows > 0)
+{
+    Console.WriteLine("Bokningen har uppdaterats!");
+    Booking? updatedBooking = await repository.GetLastReservationAsync(bookingIdToUpdate);
+    Console.WriteLine(updatedBooking is null ? "Bokningen saknas." : updatedBooking.ToString());
+}
+
 //-----------------------------------
 */
 
-//Update number of persons
+//Remove booking
