@@ -18,7 +18,15 @@ if (customer_id > 0)
 {
     Console.WriteLine($"Skapad customer med id: {customer_id}"); 
 }
-*/
+//Check avaible hotel - city 
+
+List<HotelCity> hotelCities = await repository.GetAvaibleHotelCity();
+Console.WriteLine("-----Our Hotels-----");
+foreach (HotelCity hotelCity in hotelCities)
+{
+    Console.WriteLine(hotelCity);
+}
+
 //Look for avaible room
 List<Room> freeRooms = await repository.GetAvaibleRoomsAsync(
     city: "Palma",
@@ -37,3 +45,4 @@ foreach (Room room in freeRooms)
 {
     Console.WriteLine(room);
 }
+*/

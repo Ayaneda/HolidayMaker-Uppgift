@@ -59,6 +59,25 @@ public class HolidayMakerRepository(MySqlConnection connection)
             return 0;
         }
     }
+    //Check which cities are avaible
+    public async Task<List<HotelCity>> GetAvaibleHotelCity()
+    {
+        await using var command = new MySqlCommand(
+            "SELECT h.name, h.city FROM hotels h;", connection);
+            await using var reader = await command.ExecuteReaderAsync();
+
+        var hotelCities = new List<HotelCity>();
+        
+        while (await reader.ReadAsync())
+        {
+            hotelCities.Add(new HotelCity(
+                reader.GetString("name"),
+                reader.GetString("city")
+                ));
+        }
+        return hotelCities;   
+    }
+    
     //Look for free rooms with customers filters
     public async Task<List<Room>> GetAvaibleRoomsAsync(
         string city,
