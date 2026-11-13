@@ -92,6 +92,37 @@ public class ConsoleUi
             }
         }
     }
-    
+
+    public bool? ReadOptionalBool (string prompt)
+    {
+        while (true)
+        {
+            Console.Write($"{prompt} [j/n, Enter för att hoppa över, 'Q' för meny]: ");
+            string? input = Console.ReadLine()?.Trim().ToLower();
+            CheckCancel(input);
+
+            if(string.IsNullOrEmpty(input)) return null;
+            if (input == "j" || input == "ja") return true;
+            if (input == "n" || input == "nej") return false;
+            Console.WriteLine("Fel: Skriv 'j' för ja, 'n' för nej, eller tryck Enter för att hoppa över.");
+        }
+    }
+
+    public int? ReadOptionalInt(string prompt, int min = 0)
+    {
+        while (true)
+        {
+            Console.Write($"{prompt} [Enter för att hoppa över, 'Q' för meny]: ");
+            string? input = Console.ReadLine()?.Trim();
+            CheckCancel(input);
+
+            if (string.IsNullOrEmpty(input)) return null;
+            if (int.TryParse(input, out int value) && value >= min)
+            {
+                return value;
+            }
+            Console.WriteLine($"Fel: Ange ett heltal (minst {min}) eller tryck Enter för att hoppa över.");
+        }
+    }
 
 }
