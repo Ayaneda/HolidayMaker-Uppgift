@@ -161,8 +161,58 @@ public class HolidayMakerRepository(MySqlConnection connection)
 
 
     //Make a booking
-    //room_id, customer_id, start_date, end_date, num_persons
-    //Get cofirmation of booking 
+    public async Task<int> CreateBookingAsync(
+        int room_id,
+        int customer_id, 
+        DateOnly checkInDate, 
+        DateOnly checkOutDate, 
+        int num_persons )
+    {
+            //room_id, customer_id, start_date, end_date, num_persons
+        try
+        {
+            await using var command = new MySqlCommand(
+                @"INSERT INTO bookings (room_id, customer_id, start_date, end_date, num_persons) 
+                SELECT r.id, @customer_id, TIMESTAMP(@check_in, '14:00:00'), TIMESTAMP(@check_out, '11:00:00'), @num_persons
+                FROM rooms r
+                WHERE r.id = @room_id
+                AND r.persons_capacity >= @num_persons
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM bookings bk
+                    WHERE bk.room_id = @room_id
+                    AND bk.end_date   > TIMESTAMP(@check_in, '14:00:00')
+                    AND bk.start_date < TIMESTAMP(@check_out, '11:00:00')
+                );", connection);
+            command.Parameters.AddWithValue("@room_id", room_id);
+            command.Parameters.AddWithValue("@customer_id", customer_id);
+            command.Parameters.AddWithValue("@check_in", checkInDate);
+            command.Parameters.AddWithValue("@check_out", checkOutDate);
+            command.Parameters.AddWithValue("@num_persons", num_persons);
+            await command.PrepareAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            if (rowsAffected == 0)
+            {
+                Console.WriteLine("Kunde inte skapa bokning: Rummet är inte ledigt eller rymmer inte antalet personer.");
+                return 0;
+            }
+            return checked((int)command.LastInsertedId);
+        }
+        catch (MySqlException ex)
+        {
+            if (ex.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+            {
+                Console.WriteLine("Kunde inte skapa bokning: Det finns en bokning redan.");
+            }
+            else
+            {
+                Console.WriteLine($"Kunde inte skapa bokning: {ex.Message}");
+            }
+            return 0;
+        }
+    }
+    //Get cofirmation of booking last inserted
+    //Show customers all reservations by customers id
     //Remove reservation
     
 
