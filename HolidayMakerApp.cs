@@ -169,7 +169,23 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
     {
         ConsoleUi.PrintHeader("Uppdatera bokning");
         int bookingId = ui.ReadInt("Ange bokning-ID att uppdatera");
+
+        Booking? existingBooking = await repository.GetLastReservationAsync(bookingId);
+        if (existingBooking is null)
+        {
+            ConsoleUi.PrintMessage($"Ingen bokning hittades med ID #{bookingId}.");
+            return;
+        }
+
+        ConsoleUi.PrintMessage("Nuvarande bokning:");
+        ConsoleUi.PrintMessage(existingBooking.ToString());
+
         int newNumPersons = ui.ReadInt("Ange nytt antal personer");
+        if (newNumPersons == existingBooking.NumPersons)
+        {
+            ConsoleUi.PrintMessage($"Bokningen har redan {newNumPersons} person(er). Ingen ändring behövdes.");
+            return;
+        }
 
         int updateRows = await repository.GetReservationUpdateAsync(bookingId, newNumPersons);
         if (updateRows > 0)
@@ -197,7 +213,17 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
 
         ConsoleUi.PrintList(bookings);
 
-        int bookingId = ui.ReadInt("Ange bokning-ID att radera");
+        int bookingId;
+        while (true)
+        {
+            bookingId = ui.ReadInt("Ange bokning-ID att radera");
+            if (bookings.Any(b => b.BookingId == bookingId))
+            {
+                break;
+            }
+            ConsoleUi.PrintMessage($"Fel: Bokning #{bookingId} tillhör inte kund #{customerId}. Välj ett boknings-ID från listan ovan.");
+        }
+
         int removedRows = await repository.GetRemoveReservationAsync(bookingId);
         if (removedRows > 0)
         {
