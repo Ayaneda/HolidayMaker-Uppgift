@@ -62,6 +62,41 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
     }
 
     //Creating a reservation with a flow (wait)
+    public async Task CreateBookingFlowAsync()
+    {
+        ConsoleUi.PrintHeader("Skapa ny bokning");
+        // 1. Control there is a customer through telephon, else create a new customer
+        string telephone = ui.ReadString("Ange kundens telefonnummer");
+        var (customer, customerId) = await repository.GetCustomerAsync(telephone);
+
+        if (customer is not null)
+        {
+            ConsoleUi.PrintMessage($"Kund hittades: {customer.Name} {customer.LastName} (Kund-ID: {customerId})");
+        }
+        else
+        {
+            ConsoleUi.PrintMessage("Ingen kund hittades med det telefonnumret. Vi registrerar en ny kund:");
+            
+            while (customerId == 0)
+            {
+                string name = ui.ReadString("Förnamn");
+                string lastName = ui.ReadString("Efternamn");
+                string email = ui.ReadString("E-post");
+
+                customerId = await repository.CreateCustomerAsync(name, lastName, telephone, email);
+                if (customerId == 0)
+                {
+                    ConsoleUi.PrintMessage("Försök igen med andra kunduppgifter (eller skriv 'Q' för huvudmenyn).");
+                    telephone = ui.ReadString("Ange telefonnummer");
+                }
+            }
+            ConsoleUi.PrintMessage($"Ny kund skapad med ID: {customerId}");
+        }
+
+        // 2. Show how many hotels and in what city they are. 
+        
+
+    }
 
     //Update a booking
     private async Task UpdateBookingAsync()
@@ -111,7 +146,5 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
                 ConsoleUi.PrintList(remainingBookings);
             }
         } 
-
     }
-
 }
