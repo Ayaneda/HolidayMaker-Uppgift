@@ -28,7 +28,11 @@ public class HolidayMakerRepository(MySqlConnection connection)
     }
 
     //Create a customer
-    public async Task<int> CreateCustomerAsync(string name, string last_name, string telephone, string email )
+    public async Task<int> CreateCustomerAsync(
+        string name, 
+        string last_name, 
+        string telephone, 
+        string email )
     {
         try
         {
@@ -56,8 +60,89 @@ public class HolidayMakerRepository(MySqlConnection connection)
         }
     }
     //Look for free rooms with customers filters
-    
+    public async Task<List<Room>> GetAvaibleRoomsAsync(
+        string city,
+        DateOnly checkInDate,
+        DateOnly checkOutDate,
+        int numPersons,
+        bool? hasPool = null,
+        bool? hasRestaurant = null,
+        int? maxDistanceToBeach = null,
+        int? maxDistanceToCity = null,
+        string sortBy = "price")
+    {
+        await using var command = new MySqlCommand(
+            @"SELECT r.id, 
+            r.name AS Room name, 
+            r.persons_capacity, 
+            h.name AS hotel, 
+            h.city, 
+            r.price,
+            h.rating, 
+            h.has_pool, 
+            h.has_restaurant, 
+            h.distance_to_beach, 
+            h.distance_to_city_center
+            FROM rooms r 
+            JOIN hotels h 
+            ON r.hotel_id = h.id 
+            WHERE 
+            h.city = @city 
+            AND r.persons_capacity >= @num_persons 
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM bookings bk 
+                WHERE bk.room_id = r.id 
+                AND bk.start_date < TIMESTAMP(@check_out, '11:00:00')  
+                AND bk.end_date   > TIMESTAMP(@check_in, '14:00:00')
+                )
+            AND (@has_pool IS NULL OR h.has_pool = @has_pool)
+            AND (@has_restaurant IS NULL OR h.has_restaurant = @has_restaurant)
+            AND (@distance_to_beach IS NULL OR h.distance_to_beach <= @distance_to_beach)
+            AND (@distance_to_center IS NULL OR h.distance_to_city_center <= @distance_to_center)
+            ORDER BY 
+                CASE WHEN @Sortby = 'price' THEN r.price END ASC,
+                CASE WHEN @Sortby = 'rating' THEN h.rating END DESC;", connection);
+        
+        command.Parameters.AddWithValue("@city", city);
+        command.Parameters.AddWithValue("@check_in", checkInDate);
+        command.Parameters.AddWithValue("@check_out", checkOutDate);
+        command.Parameters.AddWithValue("@num_persons", numPersons);
+        command.Parameters.AddWithValue("@has_pool", hasPool);
+        command.Parameters.AddWithValue("@has_restaurant", hasRestaurant);
+        command.Parameters.AddWithValue("@distance_to_beach", maxDistanceToBeach);
+        command.Parameters.AddWithValue("@distance_to_center", maxDistanceToCity);
+        command.Parameters.AddWithValue("@Sortby", sortBy);
+
+        await command.PrepareAsync();
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var freeRooms = new List<Room>();
+
+        while (await reader.ReadAsync())
+        {
+            freeRooms.Add(new Room
+            (
+                reader.GetInt32("id"),
+                reader.GetString("name"),
+                reader.GetInt32("persons_capacity"),
+                reader.GetString("hotel"),
+                reader.GetString("city"),
+                reader.GetDecimal("price"),
+                reader.GetInt32("rating"),
+                reader.GetBoolean("has_pool"),
+                reader.GetBoolean("has_restaurant"),
+                reader.GetInt32("distance_to_beach"),
+                reader.GetInt32("distance_to_city_center")
+            ));
+        }
+
+        return freeRooms;
+    }
+
+
     //Make a booking
+    //room_id, customer_id, start_date, end_date, num_persons
     //Get cofirmation of booking 
     //Remove reservation
     
