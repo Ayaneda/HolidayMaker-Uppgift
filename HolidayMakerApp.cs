@@ -82,4 +82,36 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
         }
     }
 
+    private async Task RemoveBookingAsync()
+    {
+        ConsoleUi.PrintHeader("Ta bort bokning");
+        int customerId = ui.ReadInt("Ange kund-ID för att se kundens bokningar");
+
+        List<Booking> bookings = await repository.GetAllReservationsCustomerAsync(customerId);
+        if (bookings.Count == 0)
+        {
+            ConsoleUi.PrintMessage($"Kund #{customerId} har inga bokningar att ta bort.");
+            return;
+        }
+
+        ConsoleUi.PrintList(bookings);
+
+        int bookingId = ui.ReadInt("Ange bokning-ID att radera");
+        int removedRows = await repository.GetRemoveReservationAsync(bookingId);
+        if (removedRows > 0)
+        {
+            ConsoleUi.PrintMessage($"\nBokning #{bookingId} har raderats: Uppdaterad bokningslista:");
+            List<Booking> remainingBookings = await repository.GetAllReservationsCustomerAsync(customerId);
+            if (remainingBookings.Count == 0)
+            {
+                ConsoleUi.PrintMessage("Kunden har nu inga aktiva bokningar.");
+            }
+            else
+            {
+                ConsoleUi.PrintList(remainingBookings);
+            }
+        } 
+
+    }
+
 }
