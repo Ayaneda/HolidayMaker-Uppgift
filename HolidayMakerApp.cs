@@ -35,6 +35,11 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
             {
                 ConsoleUi.PrintMessage("\n--> Återgår till huvudmenyn...");
             }
+            catch (MySqlException ex) when (ex.ErrorCode is MySqlErrorCode.UnableToConnectToHost)
+            {
+                ConsoleUi.PrintMessage("\nAnslutningen till databasen bröts! Avslutar programmet...");
+                running = false;
+            }
             catch (MySqlException ex)
             {
                 ConsoleUi.PrintMessage($"\nDatabasfel: {ex.Message}");

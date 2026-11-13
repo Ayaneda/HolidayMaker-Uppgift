@@ -2,103 +2,36 @@ using MySqlConnector;
 
 string connectionString = "Server=localhost;Database=holiday_maker;User ID=operator;Password=abcd1234;";
 
-await using var connection = new MySqlConnection(connectionString);
-await connection.OpenAsync();
-
-var repository = new HolidayMakerRepository(connection);
-/*
-//Get the customer by telephone number
-
-var (customer, customer_id) = await repository.GetCustomerAsync("0735486510");
-Console.WriteLine(customer is null ? "Det finns ingen kund med den där telefon." : customer.ToString());
-
-//-----------------------------------
-//Create a customer if there isn't any
-
-customer_id = await repository.CreateCustomerAsync("Pernilla", "Anderssons", "0730854695", "perni.and@example.com");
-if (customer_id > 0)
+try
 {
-    Console.WriteLine($"Skapad customer med id: {customer_id}"); 
-}
-//-----------------------------------
-//Check avaible hotel - city 
+    await using var connection = new MySqlConnection(connectionString);
+    await connection.OpenAsync();
 
-List<HotelCity> hotelCities = await repository.GetAvaibleHotelCity();
-Console.WriteLine("-----Our Hotels-----");
-foreach (HotelCity hotelCity in hotelCities)
+    var repository = new HolidayMakerRepository(connection);
+    var ui = new ConsoleUi();
+    var app = new HolidayMakerApp(repository, ui);
+
+    await app.RunAsync();
+}
+catch (MySqlException ex)
 {
-    Console.WriteLine(hotelCity);
+    switch (ex.ErrorCode)
+    {
+        case MySqlErrorCode.UnableToConnectToHost:
+            ConsoleUi.PrintMessage("Fel: Kunde inte nå MySQL-servern. Kontrollera att servern är igång.");
+            break;
+        case MySqlErrorCode.AccessDenied:
+            ConsoleUi.PrintMessage("Fel: Fel användarnamn eller lösenord till databasen.");
+            break;
+        case MySqlErrorCode.UnknownDatabase:
+            ConsoleUi.PrintMessage("Fel: Databasen 'holiday_maker' hittades inte.");
+            break;
+        default:
+            ConsoleUi.PrintMessage($"Databasfel ({ex.ErrorCode}): {ex.Message}");
+            break;
+    }
 }
-
-//-----------------------------------
-//Look for avaible room
-List<Room> freeRooms = await repository.GetAvaibleRoomsAsync(
-    city: "Palma",
-    checkInDate: DateOnly.ParseExact("2026-12-14", "yyyy-MM-dd"),
-    checkOutDate: DateOnly.ParseExact("2026-12-18", "yyyy-MM-dd"),
-    numPersons: 1,
-    hasPool: null,
-    hasRestaurant: null,
-    maxDistanceToBeach: null,
-    maxDistanceToCity: null,
-    sortBy: "price");
-
-Console.WriteLine("-----Lediga rum-----");
-Console.WriteLine("------------------------------------------------------------");
-foreach (Room room in freeRooms)
+catch (Exception ex)
 {
-    Console.WriteLine(room);
+    ConsoleUi.PrintMessage($"Ett oväntad fel uppstod vid start: {ex.Message}");
 }
-
-//-----------------------------------
-//Create a booking
-int newReservationId = await repository.CreateBookingAsync(
-    room_id: 5,
-    customer_id: 2,
-    checkInDate: DateOnly.ParseExact("2026-12-14", "yyyy-MM-dd"),
-    checkOutDate: DateOnly.ParseExact("2026-12-18", "yyyy-MM-dd"),
-    num_persons: 1);
-
-if (newReservationId > 0)
-{
-    Console.WriteLine($"Skapad bokning med id: {newReservationId}");
-}
-
-//-----------------------------------
-//Check last booking
-Booking? created = await repository.GetLastReservationAsync(32);   //it shoud be newReservationId but I am testing one on one
-Console.WriteLine(created is null ? "Bokningen saknas." : created.ToString());
-
-//-----------------------------------
-
-//Check all reservations to customer from customer id
-
-List<Booking> customersBooking = await repository.GetAllReservationsCustomerAsync(2);
-Console.WriteLine("-----Customer reservations-----");
-Console.WriteLine("------------------------------------------------------------");
-foreach (Booking booking in customersBooking)
-{
-    Console.WriteLine(booking);
-}
-
-
-//Update number of persons
-int bookingIdToUpdate = 7;
-int updatedRows = await repository.GetReservationUpdateAsync(id: bookingIdToUpdate, newNumPersons: 2);
-if (updatedRows > 0)
-{
-    Console.WriteLine("Bokningen har uppdaterats!");
-    Booking? updatedBooking = await repository.GetLastReservationAsync(bookingIdToUpdate);
-    Console.WriteLine(updatedBooking is null ? "Bokningen saknas." : updatedBooking.ToString());
-}
-//-----------------------------------
-
-//Remove booking
-int bookingIdToRemove = 32;
-int removedRows = await repository.GetRemoveReservationAsync(bookingIdToRemove);
-if (removedRows > 0)
-{
-    Console.WriteLine($"Bokning #{bookingIdToRemove} har raderats!");
-}
-//-----------------------------------
-*/
