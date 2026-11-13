@@ -98,8 +98,9 @@ public class ConsoleUi
         while (true)
         {
             Console.Write($"{prompt} [j/n, Enter för att hoppa över, 'Q' för meny]: ");
-            string? input = Console.ReadLine()?.Trim().ToLower();
+            string? input = Console.ReadLine()?.Trim();
             CheckCancel(input);
+            input = input?.ToLower();
 
             if(string.IsNullOrEmpty(input)) return null;
             if (input == "j" || input == "ja") return true;
@@ -123,6 +124,24 @@ public class ConsoleUi
             }
             Console.WriteLine($"Fel: Ange ett heltal (minst {min}) eller tryck Enter för att hoppa över.");
         }
+    }
+
+    public string ReadSortBy()
+    {
+        while (true)
+        {
+            Console.Write("Sortera efter (i = Pris, 2 = Betyg) [Enter = Pris, 'Q' för meny]: ");
+            string? input = Console.ReadLine()?.Trim();
+            CheckCancel(input);
+
+            if (string.IsNullOrEmpty(input) || input == "1" || input.Equals("price", StringComparison.OrdinalIgnoreCase))
+                return "price";
+            if (input == "2" || input.Equals("rating", StringComparison.OrdinalIgnoreCase))
+                return "rating";
+
+            Console.WriteLine("Fel: Välj 1 (Pris) eller 2 (Betyg).");
+        }
+        
     }
 
 }
