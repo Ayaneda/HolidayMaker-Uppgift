@@ -73,7 +73,7 @@ public class HolidayMakerRepository(MySqlConnection connection)
     {
         await using var command = new MySqlCommand(
             @"SELECT r.id, 
-            r.name AS Room name, 
+            r.name AS Room_name, 
             r.persons_capacity, 
             h.name AS hotel, 
             h.city, 
@@ -93,8 +93,8 @@ public class HolidayMakerRepository(MySqlConnection connection)
                 SELECT 1 
                 FROM bookings bk 
                 WHERE bk.room_id = r.id 
-                AND bk.start_date < TIMESTAMP(@check_out, '11:00:00')  
                 AND bk.end_date   > TIMESTAMP(@check_in, '14:00:00')
+                AND bk.start_date < TIMESTAMP(@check_out, '11:00:00')              
                 )
             AND (@has_pool IS NULL OR h.has_pool = @has_pool)
             AND (@has_restaurant IS NULL OR h.has_restaurant = @has_restaurant)
@@ -108,10 +108,10 @@ public class HolidayMakerRepository(MySqlConnection connection)
         command.Parameters.AddWithValue("@check_in", checkInDate);
         command.Parameters.AddWithValue("@check_out", checkOutDate);
         command.Parameters.AddWithValue("@num_persons", numPersons);
-        command.Parameters.AddWithValue("@has_pool", hasPool);
-        command.Parameters.AddWithValue("@has_restaurant", hasRestaurant);
-        command.Parameters.AddWithValue("@distance_to_beach", maxDistanceToBeach);
-        command.Parameters.AddWithValue("@distance_to_center", maxDistanceToCity);
+        command.Parameters.AddWithValue("@has_pool", (object?)hasPool ?? DBNull.Value);
+        command.Parameters.AddWithValue("@has_restaurant", (object?)hasRestaurant ?? DBNull.Value);
+        command.Parameters.AddWithValue("@distance_to_beach", (object?)maxDistanceToBeach ?? DBNull.Value);
+        command.Parameters.AddWithValue("@distance_to_center", (object?)maxDistanceToCity ?? DBNull.Value);
         command.Parameters.AddWithValue("@Sortby", sortBy);
 
         await command.PrepareAsync();
@@ -124,7 +124,7 @@ public class HolidayMakerRepository(MySqlConnection connection)
             freeRooms.Add(new Room
             (
                 reader.GetInt32("id"),
-                reader.GetString("name"),
+                reader.GetString("Room_name"),
                 reader.GetInt32("persons_capacity"),
                 reader.GetString("hotel"),
                 reader.GetString("city"),

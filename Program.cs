@@ -32,6 +32,7 @@ List<Room> freeRooms = await repository.GetAvaibleRoomsAsync(
     sortBy: "price");
 
 Console.WriteLine("-----Lediga rum-----");
+Console.WriteLine("------------------------------------------------------------");
 foreach (Room room in freeRooms)
 {
     Console.WriteLine(room);
