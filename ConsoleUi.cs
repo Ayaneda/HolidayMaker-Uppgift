@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Net.Mail;
+
 public class ConsoleUi
 {
     public int ShowMainMenu()
@@ -66,5 +69,29 @@ public class ConsoleUi
             Console.WriteLine($"Fel: Ange ett jeltal (minst {min}).");
         }
     }
+
+    public DateOnly ReadDate(string prompt, DateOnly? minDate = null)
+    {
+        while (true)
+        {
+            Console.Write($"{prompt} [yyyy-MM-dd] (eller 'Q' för meny): ");
+            string? input = Console.ReadLine()?.Trim();
+            CheckCancel(input);
+
+            if (DateOnly.TryParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture,DateTimeStyles.None, out DateOnly date))
+            {
+                if (minDate is null || date > minDate.Value)
+                {
+                    return date;
+                }
+                Console.WriteLine($"Fel: Datumet måste vara efter {minDate.Value:yyyy-MM-dd}.");
+            }
+            else
+            {
+                Console.WriteLine("Fel: Ange datum i formatet yyyy-MM-dd (t.ex. 2026-12-14).");
+            }
+        }
+    }
+    
 
 }
