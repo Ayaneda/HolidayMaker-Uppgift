@@ -93,7 +93,7 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
             ConsoleUi.PrintMessage($"Ny kund skapad med ID: {customerId}");
         }
 
-        // 2. Show how many hotels and in what city they are. 
+        // 2. Show how many hotels and in what city they are 
         
 
     }
