@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using MySqlConnector;
 public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
@@ -94,9 +95,46 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
         }
 
         // 2. Show how many hotels and in what city they are 
-        
+        ConsoleUi.PrintHeader("Våra hotel och städer");
+        List<HotelCity> hotelCities = await repository.GetAvaibleHotelCity();
+        ConsoleUi.PrintList(hotelCities);
 
+        // 3. Search for free room (save checkInDate, checkOutDate och numPersons for booking)
+        DateOnly checkInDate;
+        DateOnly checkOutDate;
+        int numPersons;
+        List<Room> freeRooms;
+
+        while (true)
+        {
+            ConsoleUi.PrintHeader("Sök lediga rum");
+            string city = ui.ReadString("Ange stad");
+            checkInDate = ui.ReadDate("Incheckningsdatum");
+            checkOutDate = ui.ReadDate("Utcheckningsdatum", minDate: checkInDate);
+            numPersons = ui.ReadInt("Antal personer");
+            bool? hasPool = ui.ReadOptionalBool("Krav på pool?");
+            bool? hasRestaurant = ui.ReadOptionalBool("Krav på restaurang?");
+            int? maxDistanceToBeach = ui.ReadOptionalInt("Max avstånd till strand (m)");
+            int? maxDistanceToCity = ui.ReadOptionalInt("Max avstånd till centrum (m)");
+            string sortBy = ui.ReadSortBy();
+
+            freeRooms = await repository.GetAvaibleRoomsAsync(
+                city, checkInDate, checkOutDate, numPersons, hasPool, hasRestaurant, maxDistanceToBeach, maxDistanceToCity, sortBy);
+
+            if (freeRooms.Count > 0)
+            {
+                break;
+            }
+            
+            ConsoleUi.PrintMessage("Inga lediga rum matchade dina val. Försök med andra filter (eller skriv 'Q' för meny)");
+        }
+
+        ConsoleUi.PrintHeader($"Lediga rum ({freeRooms.Count} st)");
+        ConsoleUi.PrintList(freeRooms);
+        
     }
+
+    
 
     //Update a booking
     private async Task UpdateBookingAsync()
