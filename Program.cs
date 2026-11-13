@@ -63,8 +63,24 @@ if (newReservationId > 0)
 {
     Console.WriteLine($"Skapad bokning med id: {newReservationId}");
 }
-*/
+
 //-----------------------------------
 //Check last booking
-Booking? created = await repository.GetProductAsync(32);   //it shoud be newReservationId but I am testing one on one
+Booking? created = await repository.GetLastReservationAsync(32);   //it shoud be newReservationId but I am testing one on one
 Console.WriteLine(created is null ? "Bokningen saknas." : created.ToString());
+
+//-----------------------------------
+
+//Check all reservations to customer from customer id
+
+List<Booking> customersBooking = await repository.GetAllReservationsCustomerAsync(2);
+Console.WriteLine("-----Customer reservations-----");
+Console.WriteLine("------------------------------------------------------------");
+foreach (Booking booking in customersBooking)
+{
+    Console.WriteLine(booking);
+}
+//-----------------------------------
+*/
+
+//Update number of persons
