@@ -91,8 +91,14 @@ if (updatedRows > 0)
     Booking? updatedBooking = await repository.GetLastReservationAsync(bookingIdToUpdate);
     Console.WriteLine(updatedBooking is null ? "Bokningen saknas." : updatedBooking.ToString());
 }
-
 //-----------------------------------
-*/
 
 //Remove booking
+int bookingIdToRemove = 32;
+int removedRows = await repository.GetRemoveReservationAsync(bookingIdToRemove);
+if (removedRows > 0)
+{
+    Console.WriteLine($"Bokning #{bookingIdToRemove} har raderats!");
+}
+//-----------------------------------
+*/

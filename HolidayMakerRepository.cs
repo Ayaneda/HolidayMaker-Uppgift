@@ -317,6 +317,21 @@ public class HolidayMakerRepository(MySqlConnection connection)
         return rowsAffected;
     }
     //Remove reservation
-    
+    public async Task<int> GetRemoveReservationAsync(int id)
+    {
+        await using var command = new MySqlCommand(
+            @"DELETE FROM bookings WHERE bookings.id = @booking_id;"
+            ,connection);
+        
+        command.Parameters.AddWithValue("@booking_id", id);
+
+        await command.PrepareAsync();
+        int rowsAffected = await command.ExecuteNonQueryAsync();
+        if (rowsAffected == 0)
+        {
+            Console.WriteLine("Kunde inte radera bokning: Bokningen saknas.");
+        }
+        return rowsAffected;
+    }
 
 }
