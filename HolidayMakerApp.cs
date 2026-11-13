@@ -44,7 +44,8 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
             }
         }
     }
-    private async Task ShowCustomerBookingAsync()
+    //Check customer's reservations through customer id
+    private async Task ShowCustomerBookingsAsync()
     {
         ConsoleUi.PrintHeader("Se kunds bokningar");
         int customerId = ui.ReadInt("Ange kund-ID");
@@ -58,6 +59,27 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
 
         ConsoleUi.PrintMessage($"Hittade {bookings.Count} bokning(ar) för kund #{customerId}:");
         ConsoleUi.PrintList(bookings);
+    }
+
+    //Creating a reservation with a flow (wait)
+
+    //Update a booking
+    private async Task UpdateBookingAsync()
+    {
+        ConsoleUi.PrintHeader("Uppdatera bokning");
+        int bookingId = ui.ReadInt("Ange bokning-ID att uppdatera");
+        int newNumPersons = ui.ReadInt("Ange nytt antal personer");
+
+        int updateRows = await repository.GetReservationUpdateAsync(bookingId, newNumPersons);
+        if (updateRows > 0)
+        {
+            ConsoleUi.PrintMessage("\nBokningen har uppdaterats! Här är de nya uppgifterna:");
+            Booking? updatedBooking = await repository.GetLastReservationAsync(bookingId);
+            if (updatedBooking is not null)
+            {
+                ConsoleUi.PrintMessage(updatedBooking.ToString());
+            }
+        }
     }
 
 }
