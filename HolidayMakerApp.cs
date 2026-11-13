@@ -44,4 +44,20 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
             }
         }
     }
+    private async Task ShowCustomerBookingAsync()
+    {
+        ConsoleUi.PrintHeader("Se kunds bokningar");
+        int customerId = ui.ReadInt("Ange kund-ID");
+
+        List<Booking> bookings = await repository.GetAllReservationsCustomerAsync(customerId);
+        if (bookings.Count == 0)
+        {
+            ConsoleUi.PrintMessage($"Inga bokningar hittades for kund med ID {customerId}.");
+            return;
+        }
+
+        ConsoleUi.PrintMessage($"Hittade {bookings.Count} bokning(ar) för kund #{customerId}:");
+        ConsoleUi.PrintList(bookings);
+    }
+
 }
