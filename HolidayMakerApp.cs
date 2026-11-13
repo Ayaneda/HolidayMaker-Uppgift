@@ -131,7 +131,21 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
 
         ConsoleUi.PrintHeader($"Lediga rum ({freeRooms.Count} st)");
         ConsoleUi.PrintList(freeRooms);
-        
+
+        //4. Choose a room and create a reservation with saved variables
+        int roomId;
+        while (true)
+        {
+            roomId = ui.ReadInt("Ange rumsnummer (Rum #) du vill boka");
+            if (freeRooms.Any(r => r.Id == roomId))
+            {
+                break;
+            }
+            ConsoleUi.PrintMessage("Fel: Välj ett rumsnummer som finns i listan ovan.");
+        }
+
+        int newBookingId = await repository.CreateBookingAsync(
+            roomId, customerId, checkInDate, checkOutDate, numPersons);
     }
 
     
