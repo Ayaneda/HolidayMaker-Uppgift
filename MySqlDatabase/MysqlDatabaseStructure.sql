@@ -7,11 +7,11 @@ CREATE TABLE hotels(
         PRIMARY KEY ,
     name VARCHAR(60) NOT NULL,
     city VARCHAR(60) NOT NULL,
-    has_pool BOOL NULL,
-    has_restaurant BOOL NULL,
+    has_pool BOOL NOT NULL,
+    has_restaurant BOOL NOT NULL,
     distance_to_beach INT CHECK (distance_to_beach > 0 ) NOT NULL,
     distance_to_city_center INT CHECK (distance_to_city_center > 0 ) NOT NULL,
-    rating INT CHECK ( rating BETWEEN 1 AND 5)
+    rating INT CHECK ( rating BETWEEN 1 AND 5) NOT NULL
 );
 
 CREATE TABLE rooms(
