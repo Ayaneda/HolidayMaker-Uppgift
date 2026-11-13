@@ -141,7 +141,24 @@ public class ConsoleUi
 
             Console.WriteLine("Fel: Välj 1 (Pris) eller 2 (Betyg).");
         }
-        
     }
 
+    public static void PrintMessage(string message)
+    {
+        Console.WriteLine(message);
+    }
+
+    public static void PrintHeader(string title)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"--- {title.ToUpper()} ---");
+    }
+
+    public static void PrintList<T>(IEnumerable<T> items)
+    {
+        foreach (T item in items)
+        {
+            Console.WriteLine(item);
+        }
+    }
 }

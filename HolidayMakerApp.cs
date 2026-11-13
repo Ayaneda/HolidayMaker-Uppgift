@@ -25,22 +25,22 @@ public class HolidayMakerApp(HolidayMakerRepository repository, ConsoleUi ui)
                         await RemoveBookingAsync();
                         break;
                     case 0:
-                        Console.WriteLine("Avslutar HolidayMaker. Hej då!");
+                        ConsoleUi.PrintMessage("Avslutar HolidayMaker. Hej då!");
                         running = false;
                         break;
                 }
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("\n--> Återgår till huvudmenyn...");
+                ConsoleUi.PrintMessage("\n--> Återgår till huvudmenyn...");
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"\nDatabasfel: {ex.Message}");
+                ConsoleUi.PrintMessage($"\nDatabasfel: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nEtt oväntat fel uppstod: {ex.Message}");
+                ConsoleUi.PrintMessage($"\nEtt oväntat fel uppstod: {ex.Message}");
             }
         }
     }
